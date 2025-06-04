@@ -5,6 +5,18 @@ import seaborn as sns
 import io
 import requests
 
+# Display welcome content from Markdown file
+def show_welcome():
+    try:
+        with open("welcome_streamlit.md", "r", encoding="utf-8") as file:
+            welcome_content = file.read()
+        st.markdown(welcome_content)
+    except FileNotFoundError:
+        st.warning("Welcome file not found. Please ensure 'welcome_streamlit.md' is in the app directory.")
+
+# Call the function to display welcome section
+show_welcome()
+
 st.set_page_config(page_title="Sales Performance Dashboard", layout="wide")
 st.title("Sales Performance Dashboard - First Iteration")
 
