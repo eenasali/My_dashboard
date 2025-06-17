@@ -5,6 +5,9 @@ import seaborn as sns
 import io
 import requests
 
+# Page config MUST be first Streamlit command
+st.set_page_config(page_title="Sales Performance Dashboard", layout="wide")
+
 # Display welcome content from Markdown file
 def show_welcome():
     try:
@@ -17,7 +20,6 @@ def show_welcome():
 # Call the function to display welcome section
 show_welcome()
 
-st.set_page_config(page_title="Sales Performance Dashboard", layout="wide")
 st.title("Sales Performance Dashboard - First Iteration")
 
 # Sidebar for uploading and URL input
