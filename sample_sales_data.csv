@@ -1,0 +1,21 @@
+Date,Sales,Region,Category
+2024-01-01,1200,North,Electronics
+2024-01-02,1400,South,Furniture
+2024-01-03,1600,East,Clothing
+2024-01-04,1550,West,Office Supplies
+2024-01-05,1800,North,Electronics
+2024-01-06,1700,South,Electronics
+2024-01-07,2000,East,Furniture
+2024-01-08,1900,West,Clothing
+2024-01-09,1850,North,Office Supplies
+2024-01-10,1750,South,Electronics
+2024-01-11,1600,East,Electronics
+2024-01-12,1500,West,Furniture
+2024-01-13,1450,North,Clothing
+2024-01-14,1550,South,Office Supplies
+2024-01-15,1650,East,Electronics
+2024-01-16,1700,West,Electronics
+2024-01-17,1800,North,Furniture
+2024-01-18,1850,South,Clothing
+2024-01-19,1900,East,Office Supplies
+2024-01-20,2000,West,Electronics
