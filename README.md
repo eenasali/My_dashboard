@@ -9,7 +9,8 @@ An interactive Streamlit-based dashboard that allows users to upload, explore, c
 git clone https://github.com/eenasali/My_dashboard.git
 cd My_dashboard
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run streamlit_app.py
+
 ```
 
 ## 📁 CSV Format Requirements
