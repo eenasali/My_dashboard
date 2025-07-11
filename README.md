@@ -1,43 +1,28 @@
-# Sales Performance Dashboard
+# Universal Data Cleaning & Exploration App
 
-## 📌 Overview
-An interactive Streamlit-based dashboard that allows users to upload, explore, clean, analyze, and visualize sales data.
+## 📘 Project Overview
+This application allows users to upload, clean, visualize, and export tabular datasets in CSV format. Designed as part of a graduate capstone, the app features user-friendly tools for preprocessing data without needing to write code.
 
-## 🔧 How to Run
+## 🚀 Features
+- Upload CSV files and preview raw data
+- Clean missing values using `drop`, `fill mean`, or `fill mode`
+- Remove duplicates and convert types
+- View descriptive statistics
+- Generate interactive visualizations (histogram, scatter, boxplot, heatmap)
+- Export cleaned datasets
 
+## 🛠 Installation & Running
 ```bash
 git clone https://github.com/eenasali/My_dashboard.git
 cd My_dashboard
 pip install -r requirements.txt
-streamlit run app.py
+python app.py
 ```
 
-## 📁 CSV Format Requirements
+## 🎥 Demo
+[Watch Demo Screencast](https://your-demo-link.com)
 
-Your CSV should include:
-- `Date` (format: YYYY-MM-DD)
-- `Sales` (numeric values)
-- `Region` (e.g., North, South)
-- `Category` (e.g., Electronics, Furniture)
-
-## 🧪 Sample CSV
-
-Use the dashboard to download a sample file or copy the example:
-```csv
-Date,Sales,Region,Category
-2023-01-01,1000,North,Electronics
-2023-01-02,1200,South,Furniture
-```
-
-## 🌐 Live App
-Access the deployed dashboard here: [Streamlit App](https://mydashboard-tpwda74kdsfhmvpayme8hk.streamlit.app)
-
-## 🧩 Features
-- Upload and preview CSV data
-- Explore basic statistics
-- Clean and preprocess data
-- Visualize trends and comparisons
-- Generate and export reports
-
-## 📷 Screenshots
-_Add screenshots or a short video demo of your app here._
+## 📄 Documentation
+- [Milestone 4 Final Report](./Milestone4_Final_Report.docx)
+- [User Guide](./User_Guide_for_GitHub.docx)
+- [Admin Guide](./Admin_Guide_for_GitHub.docx)

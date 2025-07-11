@@ -1,80 +1,131 @@
+# Refactored streamlit_app.py with modular classes
+
 import streamlit as st
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import io
-import requests
 
-# Display welcome content from Markdown file
-def show_welcome():
-    try:
-        with open("welcome_streamlit.md", "r", encoding="utf-8") as file:
-            welcome_content = file.read()
-        st.markdown(welcome_content)
-    except FileNotFoundError:
-        st.warning("Welcome file not found. Please ensure 'welcome_streamlit.md' is in the app directory.")
+# -------------------------------
+# System Entities (Classes)
+# -------------------------------
 
-# Call the function to display welcome section
-show_welcome()
+class SalesData:
+    def __init__(self, file):
+        self.df = pd.read_csv(file)
 
-st.set_page_config(page_title="Sales Performance Dashboard", layout="wide")
-st.title("Sales Performance Dashboard - First Iteration")
+    def preview_raw(self):
+        return self.df.head()
 
-# Sidebar for uploading and URL input
-st.sidebar.header("Load Data")
-uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
-data_url = st.sidebar.text_input("...or enter a public CSV URL")
+    def convert_columns(self, columns):
+        for col in columns:
+            self.df[col] = pd.to_numeric(self.df[col], errors='coerce')
 
-# Load dataset from file or URL
-df = None
+
+class DataCleaner:
+    def __init__(self, df):
+        self.df = df
+
+    def handle_missing(self, method):
+        if method == "Drop rows with missing values":
+            return self.df.dropna()
+        elif method == "Fill with mean (numerical only)":
+            return self.df.fillna(self.df.mean(numeric_only=True))
+        elif method == "Fill with mode":
+            for col in self.df.columns:
+                self.df[col].fillna(self.df[col].mode()[0], inplace=True)
+            return self.df
+        return self.df
+
+    def remove_duplicates(self):
+        return self.df.drop_duplicates()
+
+
+class Analyzer:
+    @staticmethod
+    def generate_summary(df):
+        return df.describe(include='all')
+
+
+class Visualizer:
+    @staticmethod
+    def plot(df, plot_type, x=None, y=None):
+        plt.figure(figsize=(8, 4))
+        if plot_type == "Histogram":
+            sns.histplot(df[x], kde=True)
+        elif plot_type == "Scatter Plot":
+            sns.scatterplot(x=df[x], y=df[y])
+        elif plot_type == "Boxplot":
+            sns.boxplot(x=df[x])
+        elif plot_type == "Correlation Heatmap":
+            plt.figure(figsize=(10, 8))
+            sns.heatmap(df.corr(numeric_only=True), annot=True, cmap='coolwarm')
+        st.pyplot(plt)
+
+
+class Exporter:
+    @staticmethod
+    def export_file(df):
+        return df.to_csv(index=False).encode('utf-8')
+
+
+# -------------------------------
+# Streamlit Interface
+# -------------------------------
+
+st.set_page_config(page_title="Universal Data Cleaning & Exploration App", layout="wide")
+st.title("Universal Data Cleaning & Exploration App")
+st.write("""
+This interactive application allows you to:
+- Upload any CSV dataset.
+- Explore raw data.
+- Apply flexible data cleaning operations.
+- Visualize cleaned data.
+- Export cleaned dataset.
+""")
+
+uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-elif data_url:
-    try:
-        response = requests.get(data_url)
-        if response.status_code == 200:
-            df = pd.read_csv(io.StringIO(response.text))
-        else:
-            st.sidebar.error("Unable to fetch data from URL.")
-    except Exception as e:
-        st.sidebar.error(f"Error: {e}")
+    data = SalesData(uploaded_file)
+    st.subheader("Raw Data Preview")
+    st.dataframe(data.preview_raw())
 
-# If data is loaded, show exploration and preprocessing options
-if df is not None:
-    st.subheader("Data Preview")
-    st.write(df.head())
+    st.header("Data Cleaning")
+    cleaner = DataCleaner(data.df)
 
-    st.subheader("Data Exploration")
-    st.write("Shape of data:", df.shape)
-    st.write("Data types:")
-    st.write(df.dtypes)
-    st.write("Summary statistics:")
-    st.write(df.describe())
+    missing_option = st.selectbox("Choose method for handling missing values:",
+                                   ["None", "Drop rows with missing values", "Fill with mean (numerical only)", "Fill with mode"])
+    data.df = cleaner.handle_missing(missing_option)
 
-    # Cleaning options
-    st.sidebar.header("Data Cleaning Options")
-    drop_missing = st.sidebar.checkbox("Drop rows with missing values")
-    drop_negative = st.sidebar.checkbox("Remove rows with negative Quantity or UnitPrice")
-    drop_canceled = st.sidebar.checkbox("Remove canceled orders (Invoice starts with 'C')")
+    if st.checkbox("Remove duplicate rows"):
+        data.df = cleaner.remove_duplicates()
 
-    cleaned_df = df.copy()
-    if drop_missing:
-        cleaned_df = cleaned_df.dropna()
-    if drop_negative and {'Quantity', 'UnitPrice'}.issubset(cleaned_df.columns):
-        cleaned_df = cleaned_df[(cleaned_df['Quantity'] > 0) & (cleaned_df['UnitPrice'] > 0)]
-    if drop_canceled and 'InvoiceNo' in cleaned_df.columns:
-        cleaned_df = cleaned_df[~cleaned_df['InvoiceNo'].astype(str).str.startswith('C')]
+    columns_to_convert = st.multiselect("Select columns to convert to numeric (if applicable):", data.df.columns)
+    data.convert_columns(columns_to_convert)
 
     st.subheader("Cleaned Data Preview")
-    st.write(cleaned_df.head())
+    st.dataframe(data.df.head())
 
-    # Visualization
-    st.subheader("Visualization")
-    if {'Description', 'Quantity'}.issubset(cleaned_df.columns):
-        top_products = cleaned_df.groupby('Description')['Quantity'].sum().sort_values(ascending=False).head(10)
-        fig, ax = plt.subplots(figsize=(10, 5))
-        sns.barplot(x=top_products.values, y=top_products.index, ax=ax)
-        ax.set_title("Top 10 Products by Quantity Sold")
-        st.pyplot(fig)
+    cleaned_csv = Exporter.export_file(data.df)
+    st.download_button("Download Cleaned Data", cleaned_csv, "cleaned_data.csv", "text/csv")
+
+    st.header("Data Exploration")
+    st.dataframe(Analyzer.generate_summary(data.df))
+
+    st.header("Data Visualization")
+    plot_type = st.selectbox("Choose plot type", ["Histogram", "Scatter Plot", "Boxplot", "Correlation Heatmap"])
+
+    numeric_columns = data.df.select_dtypes(include=np.number).columns
+    x = y = None
+
+    if plot_type in ["Histogram", "Boxplot"]:
+        x = st.selectbox("Select column", numeric_columns)
+    elif plot_type == "Scatter Plot":
+        x = st.selectbox("X-axis", numeric_columns)
+        y = st.selectbox("Y-axis", numeric_columns)
+
+    Visualizer.plot(data.df, plot_type, x, y)
+
 else:
-    st.info("Please upload a CSV file or provide a valid CSV URL to get started.")
+    st.warning("Please upload a CSV file to get started.")
