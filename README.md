@@ -20,7 +20,7 @@ python app.py
 ```
 
 ## 🎥 Demo
-[Watch Demo Screencast](https://your-demo-link.com)
+[[Watch Demo Screencast](https://your-demo-link.com)](https://youtu.be/idON-piARXQ)
 
 ## 📄 Documentation
 - [Milestone 4 Final Report](./Milestone4_Final_Report.docx)
